@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta charset="utf-8"/>
+    <title>Wolfram Engine in Action</title>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Faker/3.1.0/faker.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.11/lodash.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="/bootstrap.min.css">
+    <style>
+        .bordered {
+            border: 1px solid white;
+            border-radius: 6px;
+            padding: 17px 1px;
+            margin-left: 0;
+        }
+
+        .image {
+            background-image: url("/city/default.png");
+            background-repeat: no-repeat;
+            background-size: contain;
+            height: 200px;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <div class="page-header" id="banner">
+        <div class="row mt-5">
+            <div class="col-lg-9 col-md-8 col-sm-6">
+                <h1>Weather Info</h1>
+                <p class="lead">The Wolfram Engine in Action</p>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <div class="sponsor">
+                    by <a href="https://orbifold.net">Orbifold Consulting</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <p class="mt-3">You can use natural language below to ask about the weather in some city. The application will recognize cities mentioned and use the first one.</p>
+    <div class="row mt-5">
+        <div class="col-lg-9 col-md-8 col-sm-6">
+            <div class="form-group">
+                <input type="text" class="form-control" id="ask">
+            </div>
+        </div>
+
+    </div>
+    <div class="row bordered col-lg-9 col-md-8 col-sm-6">
+        <div class="col-md-4">
+            <div class="image"></div>
+            <div>
+                <div>&nbsp;</div>
+                <div class="city">
+                    <small>
+                        <small>CITY:</small>
+                    </small>
+                    <span id="city"></span>
+                </div>
+                <div class="temp"><span id="temp"></span>&deg;
+                    <small>C</small>
+                </div>
+                <div class="wind">
+                    <small>
+                        <small>WIND:</small>
+                    </small>
+                    <span id="wind"></span> km/h
+                </div>
+                <div class="wind">
+                    <small>
+                        <small>PRESSURE:</small>
+                    </small>
+                    <span id="pressure"></span> mBars
+                </div>
+                <div>&nbsp;</div>
+            </div>
+        </div>
+        <div class="col-md-4 ml-3">
+
+            <p id="info">            </p>
+
+            <div class="icon">
+                <span class="wi-day-sunny"></span>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    const $ask = $("#ask");
+    const $widget = $("#widget");
+    $ask.focus();
+    $widget.hide();
+
+    function getWeather(text) {
+        $.ajax({
+            url: "/api/weather",
+            method: "POST",
+            contentType: 'application/json',
+            dataType: "json",
+            data: JSON.stringify({"text": text})
+        }).then(function (r) {
+            console.log(r)
+            if (r.City) {
+                $widget.show();
+                $("#city").text(r.City);
+                $("#temp").text(r.Temperature);
+                $("#wind").text(r.WindSpeed);
+                $("#pressure").text(r.Pressure);
+                $("#info").text(r.Info);
+                $('.image').css('background-image', 'url(/city/' + r.City + '.png)');
+            } else {
+                $widget.hide();
+            }
+        });
+
+    }
+
+    $ask.keypress(function (e) {
+        if (e.which === 13) {
+            const input = $ask.val();
+            if (!_.isNil(input) && input.length > 0) {
+                getWeather(input);
+            }
+            $ask.val("");
+        }
+    });
+
+
+</script>
+</body>
+</html>

@@ -1,0 +1,4 @@
+wolframclient
+flask-cors
+nose
+faker
